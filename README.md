@@ -12,7 +12,7 @@ so on.
 #### Quick Start
 
 ```sh
-$ git clone https://github.com/ctj12461/brainfuck-interpreter.git
+$ git clone https://github.com/StarryReverie/brainfuck-interpreter.git
 $ cd brainfuck-interpreter
 $ cargo install --path ./crates/bf-exec # The program will be installed to ~/.cargo/bin
 $ bf-exec ./examples/helloworld.bf
@@ -91,5 +91,5 @@ Options:
 
 Licensed under MIT.
 
-Copyright (C) 2023 Justin Chen (ctj12461)
+Copyright (C) 2023-2026 Justin Chen (StarryReverie)
 

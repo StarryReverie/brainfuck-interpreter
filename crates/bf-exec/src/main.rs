@@ -5,7 +5,7 @@
 //! so on.
 //!
 //! Licensed under MIT.
-//! Copyright (C) 2023 Justin Chen (ctj12461)
+//! Copyright (C) 2023-2026 Justin Chen (StarryReverie)
 //!
 
 use std::error::Error;
