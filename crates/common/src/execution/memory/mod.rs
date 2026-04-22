@@ -202,7 +202,7 @@ impl Builder {
     pub fn build(self) -> Memory {
         let addr_strategy: Box<dyn AddrStrategy> = match self.addr {
             Addr::Unsigned => Box::new(strategy::UnsignedAddrStrategy::new(self.len)),
-            Addr::Signed => Box::new(strategy::SignedAddrStrategy::new((self.len + 1) / 2)),
+            Addr::Signed => Box::new(strategy::SignedAddrStrategy::new(self.len.div_ceil(2))),
         };
         let cell_strategy: Box<dyn CellStrategy> = match self.cell {
             Cell::I8 => Box::new(strategy::I8CellStrategy {}),

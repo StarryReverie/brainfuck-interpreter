@@ -57,7 +57,7 @@ pub enum ViewError {
     InvalidRange { range: AddrRange },
 }
 
-pub fn execute(memory: &Memory, range: AddrRange) -> Result<MemoryView> {
+pub fn execute(memory: &Memory, range: AddrRange) -> Result<MemoryView<'_>> {
     ensure!(range.left <= range.right, InvalidRangeSnafu { range });
 
     let AddrRange { left, right } = memory.range();

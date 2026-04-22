@@ -79,7 +79,7 @@ impl Rule for AddUntilZeroRule {
         };
 
         // Check whether the first character in code is `-`.
-        match block.get(0) {
+        match block.first() {
             Some(SyntaxTree::Add { val: -1 }) => (),
             _ => return SyntaxTree::Loop { block },
         }

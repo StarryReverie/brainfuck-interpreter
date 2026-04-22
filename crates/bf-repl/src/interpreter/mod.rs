@@ -41,8 +41,6 @@ pub enum InterpreterError {
     Parse { source: ParseError },
     #[snafu(display("an error occurred when running the code"))]
     Runtime { source: ProcessorError },
-    #[snafu(display("the program hasn't been loaded yet"))]
-    Uninitialized,
 }
 
 impl From<ParseError> for InterpreterError {
