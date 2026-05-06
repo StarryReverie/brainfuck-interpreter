@@ -71,6 +71,16 @@ impl Processor {
                 memory.set(0).unwrap();
                 Ok(self.tick())
             }
+            Instruction::Set { val } => {
+                memory.set(*val).unwrap();
+                Ok(self.tick())
+            }
+            Instruction::Scan { offset } => {
+                while memory.get() != 0 {
+                    memory.seek(*offset).context(MemorySnafu)?;
+                }
+                Ok(self.tick())
+            }
             Instruction::AddUntilZero { target } => {
                 Self::add_while_zero(target, memory).context(MemorySnafu)?;
                 Ok(self.tick())

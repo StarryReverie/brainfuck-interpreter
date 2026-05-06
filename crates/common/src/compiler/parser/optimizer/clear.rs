@@ -1,3 +1,4 @@
+use crate::compiler::parser::optimizer::NodeRule;
 use crate::compiler::parser::syntax::SyntaxTree;
 
 pub struct ClearRule;
@@ -8,7 +9,7 @@ impl ClearRule {
     }
 }
 
-impl super::Rule for ClearRule {
+impl NodeRule for ClearRule {
     fn apply(&self, block: SyntaxTree) -> SyntaxTree {
         match block {
             SyntaxTree::Loop { block } => {

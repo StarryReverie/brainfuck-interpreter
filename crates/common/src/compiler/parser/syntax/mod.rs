@@ -4,7 +4,7 @@ use crate::compiler::lexer::{SingleToken, Token, TokenList};
 
 pub type Result<T> = std::result::Result<T, SyntaxError>;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AddUntilZeroArg {
     pub offset: isize,
     pub times: i32,
@@ -16,11 +16,13 @@ impl AddUntilZeroArg {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SyntaxTree {
     Add { val: i32 },
     Seek { offset: i32 },
+    Set { val: i32 },
     Clear,
+    Scan { offset: i32 },
     AddUntilZero { target: Vec<AddUntilZeroArg> },
     Input,
     Output,

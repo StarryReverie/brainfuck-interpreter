@@ -1,3 +1,4 @@
+use crate::compiler::parser::optimizer::NodeRule;
 use crate::compiler::parser::syntax::{AddUntilZeroArg, SyntaxTree};
 
 pub struct AddUntilZeroRule;
@@ -8,7 +9,7 @@ impl AddUntilZeroRule {
     }
 }
 
-impl super::Rule for AddUntilZeroRule {
+impl NodeRule for AddUntilZeroRule {
     fn apply(&self, block: SyntaxTree) -> SyntaxTree {
         let block = match block {
             SyntaxTree::Loop { block } => block,

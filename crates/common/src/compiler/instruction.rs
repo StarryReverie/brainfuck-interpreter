@@ -4,7 +4,9 @@ use crate::compiler::parser::syntax::{AddUntilZeroArg, SyntaxTree};
 pub enum Instruction {
     Add { val: i32 },
     Seek { offset: isize },
+    Set { val: i32 },
     Clear,
+    Scan { offset: isize },
     AddUntilZero { target: Vec<AddUntilZeroArg> },
     Input,
     Output,
@@ -37,6 +39,10 @@ impl InstructionList {
                     offset: offset as isize,
                 }),
                 SyntaxTree::Clear => ins.push(Instruction::Clear),
+                SyntaxTree::Set { val } => ins.push(Instruction::Set { val }),
+                SyntaxTree::Scan { offset } => ins.push(Instruction::Scan {
+                    offset: offset as isize,
+                }),
                 SyntaxTree::AddUntilZero { target } => {
                     ins.push(Instruction::AddUntilZero { target })
                 }
