@@ -1,15 +1,14 @@
-## brainfuck-interpreter
+# brainfuck-interpreter
 
-### Overview
+[十行代码专用中文 README](./README.zh_CN.md)
 
-A fast, powerful and configurable interpreter written in Rust,
-which allows various options to meet different demends, including
-memory (tape) length configuration, EOF handling configuration and
-so on.
+## Overview
 
-### Usage
+A fast, powerful and configurable interpreter written in Rust, which allows various options to meet different demends, including memory (tape) length configuration, EOF handling configuration and so on.
 
-#### Quick Start
+## Usage
+
+### Quick Start
 
 ```sh
 $ git clone https://github.com/StarryReverie/brainfuck-interpreter.git
@@ -19,7 +18,7 @@ $ bf-interpreter ./examples/helloworld.bf
 Hello World!
 ```
 
-#### Verbose Version
+### Verbose Version
 
 ```plain
 Usage: bf-interpreter [OPTIONS] <SOURCE>
@@ -32,7 +31,7 @@ Options:
       --len <LEN>
           the memory (tape) length the program will use.
 
-          [default: 32768]
+          [default: 100000000]
 
       --addr <ADDR>
           the address range of the memory (tape).
@@ -87,7 +86,7 @@ Options:
           Print version
 ```
 
-### License
+## License
 
 Licensed under MIT.
 
