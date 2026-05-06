@@ -15,13 +15,15 @@ fn run_test(id: &str) {
     let expected = std::fs::read_to_string(&expected_path)
         .unwrap_or_else(|e| panic!("read {expected_path}: {e}"));
 
-    let mut cmd = Command::new(env!("CARGO_BIN_EXE_bf-exec"))
+    let manifest_dir = env!("CARGO_MANIFEST_DIR");
+    let bin = format!("{manifest_dir}/../../target/debug/bf-interpreter");
+    let mut cmd = Command::new(bin)
         .arg(&source)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .expect("failed to spawn bf-exec");
+        .expect("failed to spawn bf-interpreter");
 
     if Path::new(&input_path).exists() {
         let input = std::fs::read(&input_path).expect("read input file");
@@ -36,7 +38,7 @@ fn run_test(id: &str) {
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        panic!("bf-exec failed for {id}:\n{stderr}");
+        panic!("bf-interpreter failed for {id}:\n{stderr}");
     }
 
     let actual = String::from_utf8_lossy(&output.stdout);

@@ -1,8 +1,12 @@
 [package]
-name = "bf-exec"
+name = "bf-interpreter"
 version = "0.2.0"
 edition = "2021"
 license = "MIT"
+
+[[bin]]
+name = "bf-interpreter"
+path = "src/main.rs"
 
 [dependencies]
 common = { path = "../common" }

@@ -13,7 +13,7 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::process;
 
-use bf_exec::Interpreter;
+use bf_interpreter::Interpreter;
 use clap::{builder::PathBufValueParser, command, value_parser, Arg, ArgMatches};
 use common::execution::memory::config::{self as memory_config, Config as MemoryConfig};
 use common::execution::stream::config::{self as stream_config, Config as StreamConfig};

@@ -1,4 +1,4 @@
-use bf_exec::Interpreter;
+use bf_interpreter::Interpreter;
 use common::execution::memory::config::{Config as MemoryConfig, *};
 use common::execution::stream::config::{Config as StreamConfig, *};
 use criterion::{criterion_group, criterion_main, Criterion};
