@@ -1,5 +1,14 @@
+mod addr;
+mod cell;
+mod eof;
+mod overflow;
+
 use super::{MemoryError, Result};
-use crate::execution::stream::EOF;
+
+pub use addr::{AddrStrategy, SignedAddrStrategy, UnsignedAddrStrategy};
+pub use cell::{CellStrategy, I32CellStrategy, I8CellStrategy};
+pub use eof::{EofStrategy, IgnoreEofStrategy, KeepEofStrategy, ZeroEofStrategy};
+pub use overflow::{ErrorOverflowStrategy, OverflowStrategy, WrapOverflowStrategy};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct AddrRange {
@@ -19,217 +28,6 @@ impl AddrRange {
 
     pub fn contains(&self, addr: isize) -> bool {
         self.left <= addr && addr <= self.right
-    }
-}
-
-pub trait AddrStrategy {
-    /// Return the initial value the pointer should contain.
-    fn initial(&self) -> isize {
-        0
-    }
-
-    /// Calculate `addr + offset`. Return `None` when `addr + offset` is out of bounds.
-    fn seek(&self, addr: isize, offset: isize) -> Result<isize>;
-
-    /// Calculate the actual address.
-    fn calc(&self, addr: isize) -> usize;
-
-    /// Get the abstract address range.
-    fn range(&self) -> AddrRange;
-}
-
-pub struct UnsignedAddrStrategy {
-    len: usize,
-}
-
-impl UnsignedAddrStrategy {
-    pub fn new(len: usize) -> Self {
-        Self { len }
-    }
-}
-
-impl AddrStrategy for UnsignedAddrStrategy {
-    fn seek(&self, addr: isize, offset: isize) -> Result<isize> {
-        let target = addr + offset;
-
-        if 0 <= target && target < self.len as isize {
-            Ok(target)
-        } else {
-            Err(MemoryError::SeekOutOfBounds {
-                now_position: addr,
-                offset,
-                range: self.range(),
-            })
-        }
-    }
-
-    fn calc(&self, addr: isize) -> usize {
-        addr as usize
-    }
-
-    fn range(&self) -> AddrRange {
-        AddrRange {
-            left: 0,
-            right: self.len as isize - 1,
-        }
-    }
-}
-
-pub struct SignedAddrStrategy {
-    half_len: usize,
-}
-
-impl SignedAddrStrategy {
-    pub fn new(half_len: usize) -> Self {
-        Self { half_len }
-    }
-}
-
-impl AddrStrategy for SignedAddrStrategy {
-    fn seek(&self, addr: isize, offset: isize) -> Result<isize> {
-        let target = addr + offset;
-
-        if -(self.half_len as isize) <= target && target < self.half_len as isize {
-            Ok(target)
-        } else {
-            Err(MemoryError::SeekOutOfBounds {
-                now_position: addr,
-                offset,
-                range: self.range(),
-            })
-        }
-    }
-
-    fn calc(&self, addr: isize) -> usize {
-        addr as usize + self.half_len
-    }
-
-    fn range(&self) -> AddrRange {
-        AddrRange {
-            left: -(self.half_len as isize),
-            right: self.half_len as isize - 1,
-        }
-    }
-}
-
-pub trait CellStrategy {
-    fn is_overflowed(&self, num: i64) -> bool;
-
-    fn wrap(&self, num: i64) -> i32;
-}
-
-pub struct I8CellStrategy {}
-
-impl CellStrategy for I8CellStrategy {
-    fn is_overflowed(&self, num: i64) -> bool {
-        num < i8::MIN as i64 || num > i8::MAX as i64
-    }
-
-    fn wrap(&self, num: i64) -> i32 {
-        num as i8 as i32
-    }
-}
-
-pub struct I32CellStrategy {}
-
-impl CellStrategy for I32CellStrategy {
-    fn is_overflowed(&self, num: i64) -> bool {
-        num < i32::MIN as i64 || num > i32::MAX as i64
-    }
-
-    fn wrap(&self, num: i64) -> i32 {
-        num as i32
-    }
-}
-
-pub trait OverflowStrategy {
-    /// Calculate and check the value for the `add` operation.
-    fn add(&self, cell_strategy: &dyn CellStrategy, before: i32, add: i32) -> Result<i32>;
-
-    fn set(&self, cell_strategy: &dyn CellStrategy, val: i32) -> Result<i32>;
-}
-
-pub struct ErrorOverflowStrategy {}
-
-impl OverflowStrategy for ErrorOverflowStrategy {
-    fn add(&self, cell_strategy: &dyn CellStrategy, before: i32, add: i32) -> Result<i32> {
-        let res = before as i64 + add as i64;
-
-        if cell_strategy.is_overflowed(res) {
-            Err(MemoryError::AddOverflow { before, add })
-        } else {
-            Ok(res as i32)
-        }
-    }
-
-    fn set(&self, cell_strategy: &dyn CellStrategy, val: i32) -> Result<i32> {
-        if cell_strategy.is_overflowed(val as i64) {
-            Err(MemoryError::SetOverflow { val })
-        } else {
-            Ok(val)
-        }
-    }
-}
-
-pub struct WrapOverflowStrategy {}
-
-impl OverflowStrategy for WrapOverflowStrategy {
-    fn add(&self, cell_strategy: &dyn CellStrategy, before: i32, add: i32) -> Result<i32> {
-        let res = before as i64 + add as i64;
-
-        if cell_strategy.is_overflowed(res) {
-            Ok(cell_strategy.wrap(res))
-        } else {
-            Ok(res as i32)
-        }
-    }
-
-    fn set(&self, cell_strategy: &dyn CellStrategy, val: i32) -> Result<i32> {
-        if cell_strategy.is_overflowed(val as i64) {
-            Ok(cell_strategy.wrap(val as i64))
-        } else {
-            Ok(val)
-        }
-    }
-}
-
-pub trait EofStrategy {
-    fn check(&self, input: i32) -> Option<i32>;
-}
-
-#[derive(Debug)]
-pub struct ZeroEofStrategy {}
-
-/// Turn EOF to 0.
-impl EofStrategy for ZeroEofStrategy {
-    fn check(&self, input: i32) -> Option<i32> {
-        if input == EOF {
-            Some(0)
-        } else {
-            Some(input)
-        }
-    }
-}
-
-/// Keep EOF.
-pub struct KeepEofStrategy {}
-
-impl EofStrategy for KeepEofStrategy {
-    fn check(&self, input: i32) -> Option<i32> {
-        Some(input)
-    }
-}
-
-/// Ignore this input if it's EOF.
-pub struct IgnoreEofStrategy {}
-
-impl EofStrategy for IgnoreEofStrategy {
-    fn check(&self, input: i32) -> Option<i32> {
-        if input == EOF {
-            None
-        } else {
-            Some(input)
-        }
     }
 }
 
@@ -286,7 +84,6 @@ mod tests {
     #[test]
     fn i32_cell_strategy() {
         let c = I32CellStrategy {};
-        // i32::MAX = 2147483647, i32::MIN = -2147483648
         assert!(c.is_overflowed(2147483648i64));
         assert!(!c.is_overflowed(-2147483648i64));
         assert!(c.is_overflowed(-2147483649i64));

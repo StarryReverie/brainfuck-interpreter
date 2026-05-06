@@ -163,7 +163,6 @@ impl Processor {
 
     pub fn run(&mut self, context: &mut Context) -> Result<()> {
         match self.state {
-            // There is only one halt instruction
             ProcessorState::Ready if self.instructions.0.len() == 1 => {
                 return Err(ProcessorError::Empty)
             }
@@ -172,7 +171,9 @@ impl Processor {
             _ => {}
         }
 
-        while self.state == ProcessorState::Ready || self.state == ProcessorState::Running {
+        self.state = ProcessorState::Running;
+
+        while self.state == ProcessorState::Running {
             self.step(context)?
         }
 

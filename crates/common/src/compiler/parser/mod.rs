@@ -6,20 +6,28 @@ use optimizer::Optimizer;
 use snafu::prelude::*;
 pub use syntax::{AddUntilZeroArg, SyntaxError, SyntaxTree};
 
+pub use optimizer::{AddUntilZeroRule, ClearRule, Optimizer as OptimizeEngine, Rule};
+
 type Result<T> = std::result::Result<T, ParseError>;
 
-pub struct Parser;
+pub struct Parser {
+    optimizer: Optimizer,
+}
 
 impl Parser {
     pub fn new() -> Self {
-        Self
+        Self {
+            optimizer: Optimizer::with_default_rules(),
+        }
+    }
+
+    pub fn with_optimizer(optimizer: Optimizer) -> Self {
+        Self { optimizer }
     }
 
     pub fn parse(&self, token_list: TokenList) -> Result<SyntaxTree> {
-        let mut optimizer = Optimizer::new();
-        optimizer.load_rules();
         let tree = SyntaxTree::build(token_list)?;
-        let tree = optimizer.optimize(tree);
+        let tree = self.optimizer.optimize(tree);
         Ok(tree)
     }
 }
