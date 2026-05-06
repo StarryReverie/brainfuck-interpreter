@@ -26,7 +26,7 @@ impl Parser {
     }
 
     pub fn parse(&self, token_list: TokenList) -> Result<SyntaxTree> {
-        let tree = SyntaxTree::build(token_list)?;
+        let tree = SyntaxTree::build(token_list).context(SyntaxSnafu)?;
         let tree = self.optimizer.optimize(tree);
         Ok(tree)
     }
@@ -36,10 +36,4 @@ impl Parser {
 pub enum ParseError {
     #[snafu(display("error occurred when parsing code"))]
     Syntax { source: SyntaxError },
-}
-
-impl From<SyntaxError> for ParseError {
-    fn from(e: SyntaxError) -> Self {
-        Self::Syntax { source: e }
-    }
 }

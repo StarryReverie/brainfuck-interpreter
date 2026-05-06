@@ -21,9 +21,9 @@ impl Interpreter {
 
     pub fn run(&mut self, code: &str) -> Result<()> {
         let compiler = Compiler::new();
-        let instructions = compiler.compile(code)?;
+        let instructions = compiler.compile(code).context(ParseSnafu)?;
         let mut processor = Processor::new(instructions);
-        processor.run(&mut self.context)?;
+        processor.run(&mut self.context).context(RuntimeSnafu)?;
         Ok(())
     }
 }
@@ -36,16 +36,4 @@ pub enum InterpreterError {
     Runtime { source: ProcessorError },
     #[snafu(display("the program hasn't been loaded yet"))]
     Uninitialized,
-}
-
-impl From<ParseError> for InterpreterError {
-    fn from(e: ParseError) -> Self {
-        Self::Parse { source: e }
-    }
-}
-
-impl From<ProcessorError> for InterpreterError {
-    fn from(e: ProcessorError) -> Self {
-        Self::Runtime { source: e }
-    }
 }

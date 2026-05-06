@@ -81,22 +81,22 @@ impl Processor {
 
         match &self.instructions.0[self.counter.get()] {
             Instruction::Add { val } => {
-                if let Err(e) = memory.add(*val) {
+                let result = memory.add(*val);
+                if result.is_err() {
                     self.abort();
-                    Err(e.into())
-                } else {
-                    self.tick();
-                    Ok(())
                 }
+                result.context(MemorySnafu)?;
+                self.tick();
+                Ok(())
             }
             Instruction::Seek { offset } => {
-                if let Err(e) = memory.seek(*offset) {
+                let result = memory.seek(*offset);
+                if result.is_err() {
                     self.abort();
-                    Err(e.into())
-                } else {
-                    self.tick();
-                    Ok(())
                 }
+                result.context(MemorySnafu)?;
+                self.tick();
+                Ok(())
             }
             Instruction::Clear => {
                 memory.set(0).unwrap();
@@ -153,9 +153,9 @@ impl Processor {
         memory.set(0).unwrap();
 
         for AddUntilZeroArg { offset, times } in target {
-            memory.seek(*offset)?;
-            memory.add(val * *times)?;
-            memory.seek(-*offset)?;
+            memory.seek(*offset).context(MemorySnafu)?;
+            memory.add(val * *times).context(MemorySnafu)?;
+            memory.seek(-*offset).context(MemorySnafu)?;
         }
 
         Ok(())
@@ -191,10 +191,4 @@ pub enum ProcessorError {
     Failed,
     #[snafu(display("empty program loaded"))]
     Empty,
-}
-
-impl From<MemoryError> for ProcessorError {
-    fn from(e: MemoryError) -> Self {
-        Self::Memory { source: e }
-    }
 }
