@@ -14,15 +14,24 @@ use self::{add::AddError, get::GetError, run::RunError, set::SetError, view::Vie
 
 pub type Result<T> = std::result::Result<T, CommandError>;
 
+/// REPL commands that interact with the interpreter state.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Command {
+    /// Read the value at the given address
     Get { addr: isize },
+    /// Print the current data pointer position
     Position,
+    /// Compile and run Brainfuck source code
     Run { code: String },
+    /// Add `val` to the cell at `addr`
     Add { addr: isize, val: i32 },
+    /// Set the cell at `addr` to `val`
     Set { addr: isize, val: i32 },
+    /// Display a memory view for the given address range
     View { range: AddrRange },
+    /// Print available commands
     Help,
+    /// Quit the REPL
     Exit,
 }
 
@@ -46,6 +55,7 @@ impl Command {
     }
 }
 
+/// Errors that can occur when executing a REPL command.
 #[derive(Snafu, Debug)]
 pub enum CommandError {
     #[snafu(display("an error occurred when executing command `get`"))]

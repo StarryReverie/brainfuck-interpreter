@@ -1,20 +1,35 @@
 use crate::compiler::parser::syntax::{AddUntilZeroArg, SyntaxTree};
 
+/// Low-level instructions executed by the processor. Each variant
+/// corresponds to one or more Brainfuck operators (or an optimizer-introduced
+/// shortcut).
 #[derive(Debug, PartialEq, Eq)]
 pub enum Instruction {
+    /// Add `val` to the current cell
     Add { val: i32 },
+    /// Move the data pointer by `offset` cells
     Seek { offset: isize },
+    /// Set the current cell to `val`
     Set { val: i32 },
+    /// Set the current cell to zero
     Clear,
+    /// Seek until a nonzero cell is found, moving by `offset` each iteration
     Scan { offset: isize },
+    /// Add `times` to cells at given `offset`s until the current cell is zero
     AddUntilZero { target: Vec<AddUntilZeroArg> },
+    /// Read one byte of input into the current cell
     Input,
+    /// Output the byte at the current cell
     Output,
+    /// Unconditional jump to `target` instruction index
     Jump { target: usize },
+    /// Jump to `target` instruction index if the current cell is zero
     JumpIfZero { target: usize },
+    /// Stop execution
     Halt,
 }
 
+/// A sequence of [`Instruction`]s ready for execution.
 #[derive(Debug, PartialEq, Eq)]
 pub struct InstructionList(pub Vec<Instruction>);
 

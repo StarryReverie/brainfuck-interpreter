@@ -10,6 +10,7 @@ use strategy::{AddrStrategy, CellStrategy, EofStrategy, OverflowStrategy};
 
 pub type Result<T> = std::result::Result<T, MemoryError>;
 
+/// Errors that can occur during memory operations.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum MemoryError {
     #[snafu(display("try to seek pointer from {} to {}, which is out of [{}, {}]",
@@ -28,6 +29,9 @@ pub enum MemoryError {
     SetOverflow { val: i32 },
 }
 
+/// The memory tape for the Brainfuck interpreter. Cells are indexed by
+/// a logical address that is mapped to a physical index via an address
+/// strategy.
 pub struct Memory {
     memory: Vec<i32>,
     cur: isize,
@@ -136,6 +140,7 @@ impl Default for Memory {
     }
 }
 
+/// Builder for constructing a [`Memory`] instance from configuration.
 pub struct Builder {
     len: usize,
     addr: Addr,

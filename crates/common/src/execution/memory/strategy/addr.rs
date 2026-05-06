@@ -1,5 +1,7 @@
 use super::{AddrRange, MemoryError, Result};
 
+/// Strategy for validating and translating logical memory addresses
+/// into physical `Vec` indices.
 pub trait AddrStrategy {
     fn initial(&self) -> isize {
         0
@@ -12,6 +14,7 @@ pub trait AddrStrategy {
     fn range(&self) -> AddrRange;
 }
 
+/// Addresses are unsigned: valid range is `[0, len - 1]`.
 pub struct UnsignedAddrStrategy {
     len: usize,
 }
@@ -49,6 +52,7 @@ impl AddrStrategy for UnsignedAddrStrategy {
     }
 }
 
+/// Addresses are signed: valid range is `[-half_len, half_len - 1]`.
 pub struct SignedAddrStrategy {
     half_len: usize,
 }

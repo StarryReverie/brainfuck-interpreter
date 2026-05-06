@@ -7,12 +7,15 @@ use std::rc::Rc;
 
 use config::{Config, Input, Output};
 
+/// EOF sentinel value returned by input streams when no more data is available.
 pub const EOF: i32 = -1;
 
+/// Trait for input streams. Returns an ASCII byte (0–255) or [`EOF`].
 pub trait InStream {
     fn read(&mut self) -> i32;
 }
 
+/// An input stream that always returns [`EOF`]. Useful when no input is expected.
 pub struct NullInStream;
 
 impl InStream for NullInStream {
@@ -21,6 +24,7 @@ impl InStream for NullInStream {
     }
 }
 
+/// An input stream that reads from standard input.
 pub struct StandardInStream {
     reader: BufReader<Stdin>,
 }
@@ -45,6 +49,7 @@ impl InStream for StandardInStream {
     }
 }
 
+/// An input stream backed by an in-memory `VecDeque`, useful for testing.
 pub struct VecInStream {
     input: Rc<RefCell<VecDeque<i32>>>,
 }
@@ -61,24 +66,28 @@ impl InStream for VecInStream {
     }
 }
 
+/// Trait for output streams. Receives an ASCII byte (0–255).
 pub trait OutStream {
     fn write(&mut self, content: i32);
 }
 
+/// An output stream that discards all output.
 pub struct NullOutStream;
 
 impl OutStream for NullOutStream {
     fn write(&mut self, _content: i32) {}
 }
 
+/// An output stream that prints characters to standard output.
 pub struct CharStandardOutStream;
 
 impl OutStream for CharStandardOutStream {
     fn write(&mut self, content: i32) {
-        print!("{}", char::from_u32(content as u32).unwrap_or('�'));
+        print!("{}", char::from_u32(content as u32).unwrap_or('\u{FFFD}'));
     }
 }
 
+/// An output stream that prints integer values to standard output.
 pub struct IntStandardOutStream;
 
 impl OutStream for IntStandardOutStream {
@@ -87,6 +96,7 @@ impl OutStream for IntStandardOutStream {
     }
 }
 
+/// An output stream backed by an in-memory `VecDeque`, useful for testing.
 pub struct VecOutStream {
     output: Rc<RefCell<VecDeque<i32>>>,
 }
@@ -103,6 +113,7 @@ impl OutStream for VecOutStream {
     }
 }
 
+/// Builder for constructing an input/output stream pair from configuration.
 pub struct Builder {
     input: Input,
     output: Output,

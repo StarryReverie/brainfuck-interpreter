@@ -3,6 +3,7 @@ use snafu::prelude::*;
 
 type Result<T> = std::result::Result<T, AddError>;
 
+/// Errors that can occur when adding a value to a cell.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum AddError {
     #[snafu(display("add value to cell out of bound"))]

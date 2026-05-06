@@ -1,6 +1,10 @@
 use crate::compiler::parser::optimizer::NodeRule;
 use crate::compiler::parser::syntax::{AddUntilZeroArg, SyntaxTree};
 
+/// Node rule that detects the "add-until-zero" idiom:
+/// `[-<offset>A...<offset>B...]` where the loop decrements the current cell
+/// by -1 and then seeks to other cells adding values. This is replaced by a
+/// single `AddUntilZero` instruction.
 pub struct AddUntilZeroRule;
 
 impl AddUntilZeroRule {

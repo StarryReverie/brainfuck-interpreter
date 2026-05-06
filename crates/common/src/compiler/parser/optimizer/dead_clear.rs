@@ -1,6 +1,8 @@
 use crate::compiler::parser::optimizer::BlockRule;
 use crate::compiler::parser::syntax::SyntaxTree;
 
+/// Block rule that removes consecutive duplicate `Clear` nodes, since clearing
+/// an already-zero cell has no effect.
 pub struct DeadClearRule;
 
 impl DeadClearRule {

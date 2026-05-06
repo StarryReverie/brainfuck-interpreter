@@ -4,6 +4,7 @@ use common::execution::memory::{AddrRange, Memory};
 use snafu::prelude::*;
 
 pub type Result<T> = std::result::Result<T, ViewError>;
+/// A formatted view of a memory region for display in the REPL.
 pub struct MemoryView<'a> {
     memory: &'a Memory,
     range: AddrRange,
@@ -46,6 +47,7 @@ impl Display for MemoryView<'_> {
     }
 }
 
+/// Errors that can occur when viewing a memory region.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum ViewError {
     #[snafu(display("index in given [{}, {}] is out of [{}, {}]",

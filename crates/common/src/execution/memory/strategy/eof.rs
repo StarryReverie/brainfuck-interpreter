@@ -1,10 +1,12 @@
 use crate::execution::stream::EOF;
 
+/// Strategy for handling EOF values when writing to a memory cell.
 pub trait EofStrategy {
+    /// Returns `Some(value)` to write, or `None` to skip the write.
     fn check(&self, input: i32) -> Option<i32>;
 }
 
-#[derive(Debug)]
+/// EOF is converted to `0` before writing.
 pub struct ZeroEofStrategy {}
 
 impl EofStrategy for ZeroEofStrategy {
@@ -17,6 +19,7 @@ impl EofStrategy for ZeroEofStrategy {
     }
 }
 
+/// EOF value (`-1`) is written to the cell as-is.
 pub struct KeepEofStrategy {}
 
 impl EofStrategy for KeepEofStrategy {
@@ -25,6 +28,7 @@ impl EofStrategy for KeepEofStrategy {
     }
 }
 
+/// EOF is ignored — the cell is left unchanged.
 pub struct IgnoreEofStrategy {}
 
 impl EofStrategy for IgnoreEofStrategy {

@@ -3,6 +3,7 @@ use snafu::prelude::*;
 
 type Result<T> = std::result::Result<T, GetError>;
 
+/// Errors that can occur when reading a cell value.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum GetError {
     #[snafu(display("get cell out of bound"))]

@@ -10,6 +10,7 @@ use syntax::{SyntaxError, SyntaxTree};
 
 type Result<T> = std::result::Result<T, ParseError>;
 
+/// Parses a [`TokenList`] into an optimized [`SyntaxTree`].
 pub struct Parser {
     optimizer: Optimizer,
 }
@@ -32,6 +33,7 @@ impl Parser {
     }
 }
 
+/// Errors that can occur during parsing.
 #[derive(Debug, Snafu, PartialEq, Eq)]
 pub enum ParseError {
     #[snafu(display("error occurred when parsing code"))]

@@ -7,6 +7,7 @@ use crate::command::Command;
 
 pub type Result<T> = std::result::Result<T, ParseError>;
 
+/// Parses a line of REPL input into a [`Command`].
 pub struct Parser;
 
 impl Parser {
@@ -94,6 +95,7 @@ impl Parser {
     }
 }
 
+/// Errors that can occur when parsing REPL commands.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum ParseError {
     #[snafu(display("invalid argument found"))]

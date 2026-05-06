@@ -7,6 +7,7 @@ use crate::execution::memory::{Memory, MemoryError};
 
 pub type Result<T> = std::result::Result<T, ProcessorError>;
 
+/// Internal instruction pointer that tracks the current execution position.
 struct Counter {
     val: usize,
 }
@@ -29,6 +30,7 @@ impl Counter {
     }
 }
 
+/// Executes a list of [`Instruction`]s against an execution [`Context`].
 pub struct Processor {
     counter: Counter,
     instructions: InstructionList,
@@ -141,6 +143,7 @@ impl Processor {
     }
 }
 
+/// Errors that can occur during execution.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum ProcessorError {
     #[snafu(display("invalid memory operation occurred"))]

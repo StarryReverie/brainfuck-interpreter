@@ -1,6 +1,9 @@
 use crate::compiler::parser::optimizer::NodeRule;
 use crate::compiler::parser::syntax::SyntaxTree;
 
+/// Node rule that detects a "clear" pattern: a loop containing exactly one
+/// `Add { val: -1 }`. This is equivalent to setting the current cell to zero
+/// and is replaced by `Clear`.
 pub struct ClearRule;
 
 impl ClearRule {

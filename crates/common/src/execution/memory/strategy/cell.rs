@@ -1,9 +1,11 @@
+/// Strategy for cell value validation (overflow detection) and wrapping.
 pub trait CellStrategy {
     fn is_overflowed(&self, num: i64) -> bool;
 
     fn wrap(&self, num: i64) -> i32;
 }
 
+/// 8-bit signed cell strategy: values in `-128..=127`.
 pub struct I8CellStrategy {}
 
 impl CellStrategy for I8CellStrategy {
@@ -16,6 +18,7 @@ impl CellStrategy for I8CellStrategy {
     }
 }
 
+/// 32-bit signed cell strategy: values in `i32::MIN..=i32::MAX`.
 pub struct I32CellStrategy {}
 
 impl CellStrategy for I32CellStrategy {

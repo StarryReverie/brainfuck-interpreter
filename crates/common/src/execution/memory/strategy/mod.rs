@@ -10,6 +10,7 @@ pub use cell::{CellStrategy, I32CellStrategy, I8CellStrategy};
 pub use eof::{EofStrategy, IgnoreEofStrategy, KeepEofStrategy, ZeroEofStrategy};
 pub use overflow::{ErrorOverflowStrategy, OverflowStrategy, WrapOverflowStrategy};
 
+/// Represents an inclusive range `[left, right]` for valid memory addresses.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct AddrRange {
     pub left: isize,

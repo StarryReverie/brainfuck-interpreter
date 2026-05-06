@@ -1,6 +1,9 @@
 use crate::compiler::parser::optimizer::BlockRule;
 use crate::compiler::parser::syntax::SyntaxTree;
 
+/// Block rule that detects adjacent `Clear` followed by `Add { val }` and
+/// replaces them with `Set { val }`, since clearing then adding is equivalent
+/// to setting directly.
 pub struct SetRule;
 
 impl SetRule {

@@ -14,14 +14,21 @@ use dead_clear::DeadClearRule;
 use scan::ScanRule;
 use set::SetRule;
 
+/// A rule that transforms a single [`SyntaxTree`] node. Implementations
+/// may return the original node unchanged if no transformation applies.
 pub trait NodeRule {
     fn apply(&self, node: SyntaxTree) -> SyntaxTree;
 }
 
+/// A rule that operates on an entire block (sequence) of [`SyntaxTree`]
+/// nodes. This is useful for patterns that span multiple adjacent statements,
+/// such as `Clear` followed by `Add`.
 pub trait BlockRule {
     fn apply(&self, block: &mut Vec<SyntaxTree>);
 }
 
+/// The syntax-tree optimizer. It applies [`NodeRule`]s and [`BlockRule`]s
+/// in a bottom-up, multi-pass fashion until the tree stops changing.
 pub struct Optimizer {
     node_rules: Vec<Box<dyn NodeRule>>,
     block_rules: Vec<Box<dyn BlockRule>>,

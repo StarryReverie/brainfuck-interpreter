@@ -3,6 +3,7 @@ use snafu::prelude::*;
 
 type Result<T> = std::result::Result<T, SetError>;
 
+/// Errors that can occur when setting a cell value.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum SetError {
     #[snafu(display("set cell out of bound"))]

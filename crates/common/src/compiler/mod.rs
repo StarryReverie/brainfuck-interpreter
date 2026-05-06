@@ -8,6 +8,9 @@ use parser::{ParseError, Parser};
 
 pub type Result<T> = std::result::Result<T, ParseError>;
 
+/// The compiler that transforms Brainfuck source code into a list of
+/// [`Instruction`]s. It orchestrates lexing, parsing, optimization, and
+/// code generation.
 pub struct Compiler;
 
 impl Compiler {

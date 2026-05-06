@@ -4,6 +4,8 @@ use crate::compiler::lexer::{SingleToken, Token, TokenList};
 
 pub type Result<T> = std::result::Result<T, SyntaxError>;
 
+/// A single target in an `AddUntilZero` operation: add `times` to the cell at
+/// `offset` from the current pointer each iteration until the current cell is zero.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AddUntilZeroArg {
     pub offset: isize,
@@ -16,17 +18,29 @@ impl AddUntilZeroArg {
     }
 }
 
+/// Abstract syntax tree for a Brainfuck program. Each variant represents
+/// a statement or compound block.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SyntaxTree {
+    /// Add `val` to the current cell
     Add { val: i32 },
+    /// Move the data pointer by `offset`
     Seek { offset: i32 },
+    /// Set the current cell to `val`
     Set { val: i32 },
+    /// Set the current cell to zero
     Clear,
+    /// Seek until a nonzero cell is found
     Scan { offset: i32 },
+    /// Repeatedly add to other cells until the current cell is zero
     AddUntilZero { target: Vec<AddUntilZeroArg> },
+    /// Read input into the current cell
     Input,
+    /// Output the current cell
     Output,
+    /// Top-level container for a sequence of statements
     Root { block: Vec<SyntaxTree> },
+    /// A loop (`[...]`) that executes its body while the current cell is nonzero
     Loop { block: Vec<SyntaxTree> },
 }
 
@@ -88,6 +102,7 @@ impl SyntaxTree {
     }
 }
 
+/// Errors that can occur when building a syntax tree from tokens.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum SyntaxError {
     #[snafu(display("found an unpaired `[`, expected another `]`"))]

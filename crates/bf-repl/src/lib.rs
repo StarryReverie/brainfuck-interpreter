@@ -13,6 +13,7 @@ use command::Command;
 use interpreter::Interpreter;
 use parser::Parser;
 
+/// An interactive read-eval-print loop for the Brainfuck interpreter.
 pub struct Repl {
     parser: Parser,
     reader: BufReader<Stdin>,

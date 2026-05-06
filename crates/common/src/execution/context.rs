@@ -3,6 +3,8 @@ use crate::execution::memory::{Builder as MemoryBuilder, Memory};
 use crate::execution::stream::config::Config as StreamConfig;
 use crate::execution::stream::{Builder as StreamBuilder, InStream, OutStream};
 
+/// Holds the execution context: memory tape, input stream, and output stream,
+/// constructed from the given configuration objects.
 pub struct Context {
     pub memory: Memory,
     pub in_stream: Box<dyn InStream>,

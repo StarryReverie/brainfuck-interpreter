@@ -8,6 +8,8 @@ use snafu::prelude::*;
 
 type Result<T> = std::result::Result<T, InterpreterError>;
 
+/// REPL-specific interpreter that exposes direct access to memory
+/// for interactive debugging.
 pub struct Interpreter {
     context: Context,
 }
@@ -36,6 +38,7 @@ impl Interpreter {
     }
 }
 
+/// Errors that can occur in the REPL interpreter.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum InterpreterError {
     #[snafu(display("couldn't parse the code"))]

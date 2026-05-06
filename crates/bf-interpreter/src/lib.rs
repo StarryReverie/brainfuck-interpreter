@@ -8,6 +8,7 @@ use snafu::prelude::*;
 
 type Result<T> = std::result::Result<T, InterpreterError>;
 
+/// The top-level interpreter that compiles and runs Brainfuck source code.
 pub struct Interpreter {
     context: Context,
 }
@@ -28,11 +29,11 @@ impl Interpreter {
     }
 }
 
+/// Errors that can occur when running the interpreter.
 #[derive(Snafu, Debug, PartialEq, Eq)]
 pub enum InterpreterError {
     #[snafu(display("couldn't parse the code"))]
     Parse { source: ParseError },
     #[snafu(display("an error occurred when running the code"))]
     Runtime { source: ProcessorError },
-
 }

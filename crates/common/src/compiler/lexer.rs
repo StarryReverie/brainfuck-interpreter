@@ -1,17 +1,28 @@
+/// Represents a single Brainfuck operator character.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SingleToken {
+    /// `>` - move the data pointer right
     GreaterThan,
+    /// `<` - move the data pointer left
     LessThan,
+    /// `+` - increment the byte at the data pointer
     Add,
+    /// `-` - decrement the byte at the data pointer
     Sub,
+    /// `.` - output the byte at the data pointer
     Dot,
+    /// `,` - input a byte and store at the data pointer
     Comma,
+    /// `[` - jump past the matching `]` if cell is zero
     LeftBracket,
+    /// `]` - jump back to the matching `[` if cell is nonzero
     RightBracket,
 }
 
 type SingleTokenList = Vec<SingleToken>;
 
+/// A token that represents a run of identical Brainfuck operators
+/// with an associated count.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct Token {
     pub token: SingleToken,
@@ -24,6 +35,8 @@ impl Token {
     }
 }
 
+/// A list of [`Token`]s produced by the lexer after combining
+/// adjacent identical operators.
 #[derive(Debug, PartialEq, Eq)]
 pub struct TokenList(pub Vec<Token>);
 

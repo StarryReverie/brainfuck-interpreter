@@ -1,6 +1,9 @@
 use crate::compiler::parser::optimizer::NodeRule;
 use crate::compiler::parser::syntax::SyntaxTree;
 
+/// Node rule that detects a "scan" pattern: a loop containing only `Seek`
+/// instructions with a nonzero net displacement. This is replaced by a single
+/// `Scan` instruction that seeks until a nonzero cell is found.
 pub struct ScanRule;
 
 impl ScanRule {

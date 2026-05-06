@@ -1,12 +1,14 @@
 use super::cell::CellStrategy;
 use super::{MemoryError, Result};
 
+/// Strategy for handling arithmetic overflow on cell values.
 pub trait OverflowStrategy {
     fn add(&self, cell_strategy: &dyn CellStrategy, before: i32, add: i32) -> Result<i32>;
 
     fn set(&self, cell_strategy: &dyn CellStrategy, val: i32) -> Result<i32>;
 }
 
+/// Overflow produces an error.
 pub struct ErrorOverflowStrategy {}
 
 impl OverflowStrategy for ErrorOverflowStrategy {
@@ -29,6 +31,7 @@ impl OverflowStrategy for ErrorOverflowStrategy {
     }
 }
 
+/// Overflow wraps around the cell's representable range.
 pub struct WrapOverflowStrategy {}
 
 impl OverflowStrategy for WrapOverflowStrategy {
