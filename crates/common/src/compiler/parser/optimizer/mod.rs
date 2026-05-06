@@ -107,110 +107,122 @@ mod tests {
     use super::*;
 
     #[test]
-    fn clear_rule() {
+    fn multi_pass_converges() {
         let mut optimizer = Optimizer::new();
-        optimizer.add_node_rule(Box::new(ClearRule::new()));
+        optimizer.add_block_rule(Box::new(DeadClearRule::new()));
+        optimizer.add_block_rule(Box::new(SetRule::new()));
 
         let tree = SyntaxTree::Root {
             block: vec![
-                SyntaxTree::Input,
+                SyntaxTree::Clear,
+                SyntaxTree::Clear,
+                SyntaxTree::Add { val: 5 },
+            ],
+        };
+
+        let tree = optimizer.optimize(tree);
+
+        assert_eq!(tree, SyntaxTree::Root {
+            block: vec![SyntaxTree::Set { val: 5 }],
+        });
+    }
+
+    #[test]
+    fn bottom_up_clears_inner_loop_first() {
+        let mut optimizer = Optimizer::new();
+        optimizer.add_node_rule(Box::new(ClearRule::new()));
+        optimizer.add_block_rule(Box::new(SetRule::new()));
+
+        let tree = SyntaxTree::Root {
+            block: vec![SyntaxTree::Loop {
+                block: vec![
+                    SyntaxTree::Loop {
+                        block: vec![SyntaxTree::Add { val: -1 }],
+                    },
+                    SyntaxTree::Add { val: 3 },
+                ],
+            }],
+        };
+
+        let tree = optimizer.optimize(tree);
+
+        assert_eq!(tree, SyntaxTree::Root {
+            block: vec![SyntaxTree::Loop {
+                block: vec![SyntaxTree::Set { val: 3 }],
+            }],
+        });
+    }
+
+    #[test]
+    fn node_rules_then_block_rules() {
+        let mut optimizer = Optimizer::new();
+        optimizer.add_node_rule(Box::new(ClearRule::new()));
+        optimizer.add_block_rule(Box::new(SetRule::new()));
+
+        let tree = SyntaxTree::Loop {
+            block: vec![
                 SyntaxTree::Loop {
                     block: vec![SyntaxTree::Add { val: -1 }],
                 },
+                SyntaxTree::Add { val: 7 },
             ],
         };
 
         let tree = optimizer.optimize(tree);
 
-        let expected = SyntaxTree::Root {
-            block: vec![SyntaxTree::Input, SyntaxTree::Clear],
-        };
-
-        assert_eq!(tree, expected);
+        assert_eq!(tree, SyntaxTree::Loop {
+            block: vec![SyntaxTree::Set { val: 7 }],
+        });
     }
 
     #[test]
-    fn add_until_zero_rule() {
+    fn add_until_zero_in_context() {
         let mut optimizer = Optimizer::new();
         optimizer.add_node_rule(Box::new(AddUntilZeroRule::new()));
-
-        let tree = SyntaxTree::Root {
-            block: vec![
-                SyntaxTree::Loop {
-                    block: vec![
-                        SyntaxTree::Add { val: -1 },
-                        SyntaxTree::Seek { offset: 2 },
-                        SyntaxTree::Add { val: -2 },
-                        SyntaxTree::Seek { offset: -3 },
-                        SyntaxTree::Add { val: 1 },
-                        SyntaxTree::Seek { offset: 1 },
-                    ],
-                },
-                SyntaxTree::Loop {
-                    block: vec![
-                        SyntaxTree::Add { val: -1 },
-                        SyntaxTree::Seek { offset: 1 },
-                        SyntaxTree::Output,
-                        SyntaxTree::Add { val: 1 },
-                        SyntaxTree::Seek { offset: -1 },
-                    ],
-                },
-            ],
-        };
-
-        let tree = optimizer.optimize(tree);
-
-        let expected = SyntaxTree::Root {
-            block: vec![
-                SyntaxTree::AddUntilZero {
-                    target: vec![AddUntilZeroArg::new(2, -2), AddUntilZeroArg::new(-1, 1)],
-                },
-                SyntaxTree::Loop {
-                    block: vec![
-                        SyntaxTree::Add { val: -1 },
-                        SyntaxTree::Seek { offset: 1 },
-                        SyntaxTree::Output,
-                        SyntaxTree::Add { val: 1 },
-                        SyntaxTree::Seek { offset: -1 },
-                    ],
-                },
-            ],
-        };
-
-        assert_eq!(tree, expected);
-    }
-
-    #[test]
-    fn add_while_zero_rule_with_changing_the_counter_incorrectly() {
-        let mut optimizer = Optimizer::new();
-        optimizer.add_node_rule(Box::new(AddUntilZeroRule::new()));
+        optimizer.add_node_rule(Box::new(ScanRule::new()));
+        optimizer.add_block_rule(Box::new(DeadClearRule::new()));
+        optimizer.add_block_rule(Box::new(SetRule::new()));
 
         let tree = SyntaxTree::Root {
             block: vec![SyntaxTree::Loop {
                 block: vec![
                     SyntaxTree::Add { val: -1 },
-                    SyntaxTree::Seek { offset: 1 },
+                    SyntaxTree::Seek { offset: 2 },
+                    SyntaxTree::Add { val: -2 },
+                    SyntaxTree::Seek { offset: -3 },
                     SyntaxTree::Add { val: 1 },
-                    SyntaxTree::Seek { offset: -1 },
-                    SyntaxTree::Add { val: -1 },
+                    SyntaxTree::Seek { offset: 1 },
                 ],
             }],
         };
 
         let tree = optimizer.optimize(tree);
 
-        let expected = SyntaxTree::Root {
+        assert_eq!(tree, SyntaxTree::Root {
+            block: vec![SyntaxTree::AddUntilZero {
+                target: vec![AddUntilZeroArg::new(2, -2), AddUntilZeroArg::new(-1, 1)],
+            }],
+        });
+    }
+
+    #[test]
+    fn scan_rule_in_context() {
+        let mut optimizer = Optimizer::new();
+        optimizer.add_node_rule(Box::new(ScanRule::new()));
+
+        let tree = SyntaxTree::Root {
             block: vec![SyntaxTree::Loop {
                 block: vec![
-                    SyntaxTree::Add { val: -1 },
                     SyntaxTree::Seek { offset: 1 },
-                    SyntaxTree::Add { val: 1 },
-                    SyntaxTree::Seek { offset: -1 },
-                    SyntaxTree::Add { val: -1 },
+                    SyntaxTree::Seek { offset: 1 },
                 ],
             }],
         };
 
-        assert_eq!(tree, expected);
+        let tree = optimizer.optimize(tree);
+
+        assert_eq!(tree, SyntaxTree::Root {
+            block: vec![SyntaxTree::Scan { offset: 2 }],
+        });
     }
 }

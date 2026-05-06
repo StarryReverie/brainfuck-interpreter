@@ -31,3 +31,64 @@ impl BlockRule for SetRule {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn converts_clear_add_to_set() {
+        let rule = SetRule::new();
+        let mut block = vec![SyntaxTree::Clear, SyntaxTree::Add { val: 3 }];
+        rule.apply(&mut block);
+        assert_eq!(block, vec![SyntaxTree::Set { val: 3 }]);
+    }
+
+    #[test]
+    fn converts_multiple_clear_add_pairs() {
+        let rule = SetRule::new();
+        let mut block = vec![
+            SyntaxTree::Clear,
+            SyntaxTree::Add { val: 5 },
+            SyntaxTree::Clear,
+            SyntaxTree::Add { val: 10 },
+        ];
+        rule.apply(&mut block);
+        assert_eq!(
+            block,
+            vec![SyntaxTree::Set { val: 5 }, SyntaxTree::Set { val: 10 }]
+        );
+    }
+
+    #[test]
+    fn does_not_touch_unrelated_nodes() {
+        let rule = SetRule::new();
+        let mut block = vec![
+            SyntaxTree::Input,
+            SyntaxTree::Clear,
+            SyntaxTree::Add { val: 7 },
+            SyntaxTree::Output,
+        ];
+        rule.apply(&mut block);
+        assert_eq!(
+            block,
+            vec![
+                SyntaxTree::Input,
+                SyntaxTree::Set { val: 7 },
+                SyntaxTree::Output
+            ]
+        );
+    }
+
+    #[test]
+    fn does_not_match_clear_then_seek() {
+        let rule = SetRule::new();
+        let mut block = vec![
+            SyntaxTree::Clear,
+            SyntaxTree::Seek { offset: 1 },
+        ];
+        let before = block.clone();
+        rule.apply(&mut block);
+        assert_eq!(block, before);
+    }
+}

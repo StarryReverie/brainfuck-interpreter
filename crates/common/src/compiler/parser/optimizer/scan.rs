@@ -35,3 +35,69 @@ impl NodeRule for ScanRule {
         SyntaxTree::Scan { offset: current_offset as i32 }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn matches_scan_right() {
+        let rule = ScanRule::new();
+        let tree = SyntaxTree::Loop {
+            block: vec![SyntaxTree::Seek { offset: 1 }],
+        };
+        assert_eq!(rule.apply(tree), SyntaxTree::Scan { offset: 1 });
+    }
+
+    #[test]
+    fn matches_scan_left() {
+        let rule = ScanRule::new();
+        let tree = SyntaxTree::Loop {
+            block: vec![SyntaxTree::Seek { offset: -1 }],
+        };
+        assert_eq!(rule.apply(tree), SyntaxTree::Scan { offset: -1 });
+    }
+
+    #[test]
+    fn matches_multiple_seeks() {
+        let rule = ScanRule::new();
+        let tree = SyntaxTree::Loop {
+            block: vec![
+                SyntaxTree::Seek { offset: 1 },
+                SyntaxTree::Seek { offset: 1 },
+            ],
+        };
+        assert_eq!(rule.apply(tree), SyntaxTree::Scan { offset: 2 });
+    }
+
+    #[test]
+    fn does_not_match_zero_offset() {
+        let rule = ScanRule::new();
+        let tree = SyntaxTree::Loop {
+            block: vec![
+                SyntaxTree::Seek { offset: 1 },
+                SyntaxTree::Seek { offset: -1 },
+            ],
+        };
+        assert_eq!(rule.apply(tree.clone()), tree);
+    }
+
+    #[test]
+    fn does_not_match_with_add() {
+        let rule = ScanRule::new();
+        let tree = SyntaxTree::Loop {
+            block: vec![
+                SyntaxTree::Seek { offset: 1 },
+                SyntaxTree::Add { val: -1 },
+            ],
+        };
+        assert_eq!(rule.apply(tree.clone()), tree);
+    }
+
+    #[test]
+    fn does_not_match_empty_loop() {
+        let rule = ScanRule::new();
+        let tree = SyntaxTree::Loop { block: vec![] };
+        assert_eq!(rule.apply(tree.clone()), tree);
+    }
+}

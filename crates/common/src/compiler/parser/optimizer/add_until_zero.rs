@@ -45,3 +45,58 @@ impl NodeRule for AddUntilZeroRule {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn matches_standard_pattern() {
+        let rule = AddUntilZeroRule::new();
+        let tree = SyntaxTree::Loop {
+            block: vec![
+                SyntaxTree::Add { val: -1 },
+                SyntaxTree::Seek { offset: 2 },
+                SyntaxTree::Add { val: -2 },
+                SyntaxTree::Seek { offset: -3 },
+                SyntaxTree::Add { val: 1 },
+                SyntaxTree::Seek { offset: 1 },
+            ],
+        };
+        let expected = SyntaxTree::AddUntilZero {
+            target: vec![AddUntilZeroArg::new(2, -2), AddUntilZeroArg::new(-1, 1)],
+        };
+        assert_eq!(rule.apply(tree), expected);
+    }
+
+    #[test]
+    fn does_not_match_if_counter_not_decremented() {
+        let rule = AddUntilZeroRule::new();
+        let tree = SyntaxTree::Loop {
+            block: vec![
+                SyntaxTree::Add { val: -1 },
+                SyntaxTree::Seek { offset: 1 },
+                SyntaxTree::Add { val: 1 },
+                SyntaxTree::Seek { offset: -1 },
+                SyntaxTree::Add { val: -1 },
+            ],
+        };
+        assert_eq!(rule.apply(tree.clone()), tree);
+    }
+
+    #[test]
+    fn does_not_match_non_loop() {
+        let rule = AddUntilZeroRule::new();
+        let tree = SyntaxTree::Add { val: -1 };
+        assert_eq!(rule.apply(tree.clone()), tree);
+    }
+
+    #[test]
+    fn does_not_match_if_first_not_neg_one() {
+        let rule = AddUntilZeroRule::new();
+        let tree = SyntaxTree::Loop {
+            block: vec![SyntaxTree::Add { val: -2 }],
+        };
+        assert_eq!(rule.apply(tree.clone()), tree);
+    }
+}
