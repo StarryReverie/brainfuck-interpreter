@@ -144,7 +144,7 @@ pub struct Builder {
     eof: Eof,
 }
 
-const DEFAULT_LEN: usize = 32768;
+const DEFAULT_LEN: usize = 100_000_000;
 
 #[allow(dead_code)]
 impl Builder {

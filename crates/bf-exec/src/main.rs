@@ -60,7 +60,7 @@ fn input() -> ArgMatches {
             .long("len")
             .required(false)
             .value_parser(value_parser!(usize))
-            .default_value("32768")
+            .default_value("100000000")
             .next_line_help(true)
             .help("the memory (tape) length the program will use.\n")
             .long_help("the memory (tape) length the program will use."),
