@@ -1,5 +1,4 @@
 use common::execution::memory::{Memory, MemoryError};
-
 use snafu::prelude::*;
 
 type Result<T> = std::result::Result<T, SetError>;

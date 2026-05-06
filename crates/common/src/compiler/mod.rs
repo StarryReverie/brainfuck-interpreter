@@ -1,13 +1,10 @@
-mod instruction;
+pub mod instruction;
 mod lexer;
-mod parser;
+pub mod parser;
 
-pub use instruction::{Instruction, InstructionList};
+use instruction::InstructionList;
 use lexer::build_token_list;
-use parser::Parser;
-pub use parser::{
-    AddUntilZeroArg, AddUntilZeroRule, ClearRule, OptimizeEngine, ParseError, Parser as SyntaxParser, Rule,
-};
+use parser::{ParseError, Parser};
 
 pub type Result<T> = std::result::Result<T, ParseError>;
 

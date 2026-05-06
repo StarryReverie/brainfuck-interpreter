@@ -1,4 +1,4 @@
-use crate::compiler::parser::{AddUntilZeroArg, SyntaxTree};
+use crate::compiler::parser::syntax::{AddUntilZeroArg, SyntaxTree};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Instruction {

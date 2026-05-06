@@ -1,9 +1,11 @@
 pub mod config;
 mod strategy;
 
-use config::{Addr, Cell, Config, Eof, Overflow};
-use snafu::prelude::*;
 pub use strategy::AddrRange;
+
+use snafu::prelude::*;
+
+use config::{Addr, Cell, Config, Eof, Overflow};
 use strategy::{AddrStrategy, CellStrategy, EofStrategy, OverflowStrategy};
 
 pub type Result<T> = std::result::Result<T, MemoryError>;

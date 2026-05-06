@@ -1,9 +1,9 @@
 use std::str::{FromStr, SplitWhitespace};
 
-use crate::command::Command;
 use common::execution::memory::AddrRange;
-
 use snafu::prelude::*;
+
+use crate::command::Command;
 
 pub type Result<T> = std::result::Result<T, ParseError>;
 

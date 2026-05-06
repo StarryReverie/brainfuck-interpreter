@@ -1,9 +1,9 @@
-use common::compiler::{Compiler, ParseError};
+use common::compiler::Compiler;
+use common::compiler::parser::ParseError;
 use common::execution::context::Context;
 use common::execution::memory::config::Config as MemoryConfig;
 use common::execution::processor::{Processor, ProcessorError};
 use common::execution::stream::config::Config as StreamConfig;
-
 use snafu::prelude::*;
 
 type Result<T> = std::result::Result<T, InterpreterError>;

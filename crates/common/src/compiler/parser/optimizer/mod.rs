@@ -1,10 +1,10 @@
-mod add_until_zero;
-mod clear;
+pub mod add_until_zero;
+pub mod clear;
 
 use crate::compiler::parser::syntax::SyntaxTree;
 
-pub use add_until_zero::AddUntilZeroRule;
-pub use clear::ClearRule;
+use add_until_zero::AddUntilZeroRule;
+use clear::ClearRule;
 
 pub trait Rule {
     fn apply(&self, block: SyntaxTree) -> SyntaxTree;

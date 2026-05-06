@@ -1,12 +1,12 @@
-mod optimizer;
-mod syntax;
+pub mod optimizer;
+pub mod syntax;
+
+use snafu::prelude::*;
 
 use crate::compiler::lexer::TokenList;
-use optimizer::Optimizer;
-use snafu::prelude::*;
-pub use syntax::{AddUntilZeroArg, SyntaxError, SyntaxTree};
 
-pub use optimizer::{AddUntilZeroRule, ClearRule, Optimizer as OptimizeEngine, Rule};
+use optimizer::Optimizer;
+use syntax::{SyntaxError, SyntaxTree};
 
 type Result<T> = std::result::Result<T, ParseError>;
 

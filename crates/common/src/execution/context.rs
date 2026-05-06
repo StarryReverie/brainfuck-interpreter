@@ -1,7 +1,7 @@
-use crate::execution::memory::{config::Config as MemoryConfig, Builder as MemoryBuilder, Memory};
-use crate::execution::stream::{
-    config::Config as StreamConfig, Builder as StreamBuilder, InStream, OutStream,
-};
+use crate::execution::memory::config::Config as MemoryConfig;
+use crate::execution::memory::{Builder as MemoryBuilder, Memory};
+use crate::execution::stream::config::Config as StreamConfig;
+use crate::execution::stream::{Builder as StreamBuilder, InStream, OutStream};
 
 pub struct Context {
     pub memory: Memory,

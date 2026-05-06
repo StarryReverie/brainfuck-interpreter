@@ -1,6 +1,7 @@
+use std::fmt::{Display, Formatter};
+
 use common::execution::memory::{AddrRange, Memory};
 use snafu::prelude::*;
-use std::fmt::{Display, Formatter};
 
 pub type Result<T> = std::result::Result<T, ViewError>;
 pub struct MemoryView<'a> {

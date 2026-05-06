@@ -1,5 +1,6 @@
-use crate::compiler::lexer::{SingleToken, Token, TokenList};
 use snafu::prelude::*;
+
+use crate::compiler::lexer::{SingleToken, Token, TokenList};
 
 pub type Result<T> = std::result::Result<T, SyntaxError>;
 

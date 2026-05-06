@@ -1,6 +1,7 @@
 use snafu::prelude::*;
 
-use crate::compiler::{AddUntilZeroArg, Instruction, InstructionList};
+use crate::compiler::instruction::{Instruction, InstructionList};
+use crate::compiler::parser::syntax::AddUntilZeroArg;
 use crate::execution::context::Context;
 use crate::execution::memory::{Memory, MemoryError};
 

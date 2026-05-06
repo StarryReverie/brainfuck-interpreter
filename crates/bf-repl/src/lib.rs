@@ -6,9 +6,10 @@ use std::error::Error;
 use std::io::{self, BufRead, BufReader, Stdin, Write};
 
 use clap::{crate_name, crate_version};
-use command::Command;
 use common::execution::memory::config::Config as MemoryConfig;
 use common::execution::stream::config::Config as StreamConfig;
+
+use command::Command;
 use interpreter::Interpreter;
 use parser::Parser;
 

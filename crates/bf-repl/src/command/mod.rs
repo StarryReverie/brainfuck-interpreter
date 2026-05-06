@@ -10,7 +10,6 @@ use common::execution::memory::AddrRange;
 use snafu::prelude::*;
 
 use crate::interpreter::Interpreter;
-
 use self::{add::AddError, get::GetError, run::RunError, set::SetError, view::ViewError};
 
 pub type Result<T> = std::result::Result<T, CommandError>;

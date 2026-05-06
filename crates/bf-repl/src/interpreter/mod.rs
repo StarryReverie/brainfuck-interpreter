@@ -1,4 +1,5 @@
-use common::compiler::{Compiler, ParseError};
+use common::compiler::Compiler;
+use common::compiler::parser::ParseError;
 use common::execution::context::Context;
 use common::execution::memory::{config::Config as MemoryConfig, Memory};
 use common::execution::processor::{Processor, ProcessorError};
@@ -21,7 +22,7 @@ impl Interpreter {
     pub fn run(&mut self, code: &str) -> Result<()> {
         let compiler = Compiler::new();
         let instructions = compiler.compile(code)?;
-        let mut processor = Processor::new(instructions);
+        let processor = Processor::new(instructions);
         processor.run(&mut self.context)?;
         Ok(())
     }
