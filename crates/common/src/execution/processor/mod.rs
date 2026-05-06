@@ -28,18 +28,9 @@ impl Counter {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
-pub enum ProcessorState {
-    Ready,
-    Running,
-    Halted,
-    Failed,
-}
-
 pub struct Processor {
     counter: Counter,
     instructions: InstructionList,
-    state: ProcessorState,
 }
 
 impl Processor {
@@ -47,103 +38,70 @@ impl Processor {
         Self {
             counter: Counter::new(),
             instructions,
-            state: ProcessorState::Ready,
         }
     }
 
-    fn abort(&mut self) {
-        self.state = ProcessorState::Failed;
-    }
-
-    fn tick(&mut self) {
+    fn tick(&mut self) -> bool {
         self.counter.tick();
-        self.check_halted();
+        self.instructions.0[self.counter.get()] != Instruction::Halt
     }
 
-    fn check_halted(&mut self) {
-        if self.instructions.0[self.counter.get()] == Instruction::Halt {
-            self.state = ProcessorState::Halted;
-        }
+    fn current(&self) -> &Instruction {
+        &self.instructions.0[self.counter.get()]
     }
 
-    fn step(&mut self, context: &mut Context) -> Result<()> {
+    fn step(&mut self, context: &mut Context) -> Result<bool> {
         let Context {
             memory,
             in_stream,
             out_stream,
         } = context;
 
-        match self.state {
-            ProcessorState::Halted => return Err(ProcessorError::AlreadyHalted),
-            ProcessorState::Failed => return Err(ProcessorError::Failed),
-            _ => {}
-        }
-
-        match &self.instructions.0[self.counter.get()] {
+        match self.current() {
             Instruction::Add { val } => {
-                let result = memory.add(*val);
-                if result.is_err() {
-                    self.abort();
-                }
-                result.context(MemorySnafu)?;
-                self.tick();
-                Ok(())
+                memory.add(*val).context(MemorySnafu)?;
+                Ok(self.tick())
             }
             Instruction::Seek { offset } => {
-                let result = memory.seek(*offset);
-                if result.is_err() {
-                    self.abort();
-                }
-                result.context(MemorySnafu)?;
-                self.tick();
-                Ok(())
+                memory.seek(*offset).context(MemorySnafu)?;
+                Ok(self.tick())
             }
             Instruction::Clear => {
                 memory.set(0).unwrap();
-                self.tick();
-                Ok(())
+                Ok(self.tick())
             }
             Instruction::AddUntilZero { target } => {
-                if let Err(e) = self.add_while_zero(target, memory) {
-                    self.abort();
-                    Err(e)
-                } else {
-                    self.tick();
-                    Ok(())
-                }
+                Self::add_while_zero(target, memory).context(MemorySnafu)?;
+                Ok(self.tick())
             }
             Instruction::Input => {
                 memory.set(in_stream.read()).unwrap();
-                self.tick();
-                Ok(())
+                Ok(self.tick())
             }
             Instruction::Output => {
                 out_stream.write(memory.get());
-                self.tick();
-                Ok(())
+                Ok(self.tick())
             }
             Instruction::Jump { target } => {
                 self.counter.jump(*target);
-                self.check_halted();
-                Ok(())
+                Ok(*self.current() != Instruction::Halt)
             }
             Instruction::JumpIfZero { target } => {
                 if memory.get() == 0 {
                     self.counter.jump(*target);
-                    self.check_halted();
+                    Ok(*self.current() != Instruction::Halt)
                 } else {
-                    self.tick();
+                    Ok(self.tick())
                 }
-
-                Ok(())
             }
-            Instruction::Halt => {
-                unreachable!()
-            }
+            Instruction::Halt => Ok(false),
         }
     }
 
-    fn add_while_zero(&self, target: &Vec<AddUntilZeroArg>, memory: &mut Memory) -> Result<()> {
+    fn add_while_zero(
+        target: &[AddUntilZeroArg],
+        memory: &mut Memory,
+    ) -> std::result::Result<(), MemoryError> {
         let val = memory.get();
 
         if val == 0 {
@@ -153,29 +111,20 @@ impl Processor {
         memory.set(0).unwrap();
 
         for AddUntilZeroArg { offset, times } in target {
-            memory.seek(*offset).context(MemorySnafu)?;
-            memory.add(val * *times).context(MemorySnafu)?;
-            memory.seek(-*offset).context(MemorySnafu)?;
+            memory.seek(*offset)?;
+            memory.add(val * *times)?;
+            memory.seek(-*offset)?;
         }
 
         Ok(())
     }
 
-    pub fn run(&mut self, context: &mut Context) -> Result<()> {
-        match self.state {
-            ProcessorState::Ready if self.instructions.0.len() == 1 => {
-                return Err(ProcessorError::Empty)
-            }
-            ProcessorState::Halted => return Err(ProcessorError::AlreadyHalted),
-            ProcessorState::Failed => return Err(ProcessorError::Failed),
-            _ => {}
+    pub fn run(mut self, context: &mut Context) -> Result<()> {
+        if self.instructions.0.len() == 1 {
+            return Err(ProcessorError::Empty);
         }
 
-        self.state = ProcessorState::Running;
-
-        while self.state == ProcessorState::Running {
-            self.step(context)?
-        }
+        while self.step(context)? {}
 
         Ok(())
     }
@@ -185,10 +134,6 @@ impl Processor {
 pub enum ProcessorError {
     #[snafu(display("invalid memory operation occurred"))]
     Memory { source: MemoryError },
-    #[snafu(display("all instructions have already finished"))]
-    AlreadyHalted,
-    #[snafu(display("couldn't continue to run due to the previous error"))]
-    Failed,
     #[snafu(display("empty program loaded"))]
     Empty,
 }

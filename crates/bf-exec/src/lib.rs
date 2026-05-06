@@ -22,7 +22,7 @@ impl Interpreter {
     pub fn run(&mut self, code: &str) -> Result<()> {
         let compiler = Compiler::new();
         let instructions = compiler.compile(code).context(ParseSnafu)?;
-        let mut processor = Processor::new(instructions);
+        let processor = Processor::new(instructions);
         processor.run(&mut self.context).context(RuntimeSnafu)?;
         Ok(())
     }
@@ -34,6 +34,5 @@ pub enum InterpreterError {
     Parse { source: ParseError },
     #[snafu(display("an error occurred when running the code"))]
     Runtime { source: ProcessorError },
-    #[snafu(display("the program hasn't been loaded yet"))]
-    Uninitialized,
+
 }
